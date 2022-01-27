@@ -5,7 +5,7 @@ webhookURLs: []
 webhookName: "EarnApp Earnings Watcher"
 webhookImage: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png"
 tokens: [] # the oauth-refresh-token of the EarnApp account(s)
-delay: 0 # delay in seconds after the hour that it should update. The EarnApp dashboard doesn't update bang on the hour, so don't set this too low or you'll miss the data. I've noticed it update at 8/9 mins past.
+delay: 600 # delay in seconds after the hour that it should update. The EarnApp dashboard doesn't update bang on the hour, so don't set this too low or you'll miss the data. I've noticed it update at 8/9 mins past.
 ratelimitWait: 60 # if the API ratelimit is hit, how long should we wait before trying again?
 perDevice: false # if you want to send data per device, set this to true.
 
