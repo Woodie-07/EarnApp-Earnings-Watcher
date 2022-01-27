@@ -110,7 +110,7 @@ info("Starting earnings watcher...")
 # run on the hour
 while True:
     # wait until the next hour
-    dt = datetime.now(timedelta(hours=1))
+    dt = datetime.now() + timedelta(hours=1)
     dt = dt.replace(minute=00, second=00, microsecond=0)
     while datetime.now() < dt:
         time.sleep(1)
