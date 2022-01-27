@@ -57,6 +57,75 @@ def textToEmbed(text: str, cfg: dict, type: str, version: str, state: str, hasBa
     
     return embed
 
+def generateAppUpdateText(cfg: dict, oldAppVersions: dict, newAppVersions: dict, version: str, state: str) -> str:
+    text = ""
+
+    if cfg["appUpdateSettings"]["shownInfo"]["windows"]["enabled"]:
+        text += "**" + cfg["appUpdateSettings"]["shownInfo"]["windows"]["title"] + "**\n" + cfg["appUpdateSettings"]["shownInfo"]["windows"]["text"] + "\n\n"
+
+    if cfg["appUpdateSettings"]["shownInfo"]["mac"]["enabled"]:
+        text += "**" + cfg["appUpdateSettings"]["shownInfo"]["mac"]["title"] + "**\n" + cfg["appUpdateSettings"]["shownInfo"]["mac"]["text"] + "\n\n"
+
+    return basicPlaceholderReplace(appUpdatePlaceholderReplace(text, oldAppVersions, newAppVersions), version, state)
+
+def generateRedeemRequestText(cfg: dict, redeemRequest: dict, version: str, state: str) -> str:
+    text = ""
+
+    if cfg["redeemRequestSettings"]["shownInfo"]["amount"]["enabled"]:
+        text += "**" + cfg["redeemRequestSettings"]["shownInfo"]["amount"]["title"] + "**\n" + cfg["redeemRequestSettings"]["shownInfo"]["amount"]["text"] + "\n\n"
+
+    if cfg["redeemRequestSettings"]["shownInfo"]["promotionsBonus"]["enabled"]:
+        text += "**" + cfg["redeemRequestSettings"]["shownInfo"]["promotionsBonus"]["title"] + "**\n" + cfg["redeemRequestSettings"]["shownInfo"]["promotionsBonus"]["text"] + "\n\n"
+
+    if cfg["redeemRequestSettings"]["shownInfo"]["status"]["enabled"]:
+        text += "**" + cfg["redeemRequestSettings"]["shownInfo"]["status"]["title"] + "**\n" + cfg["redeemRequestSettings"]["shownInfo"]["status"]["text"] + "\n\n"
+
+    if cfg["redeemRequestSettings"]["shownInfo"]["id"]["enabled"]:
+        text += "**" + cfg["redeemRequestSettings"]["shownInfo"]["id"]["title"] + "**\n" + cfg["redeemRequestSettings"]["shownInfo"]["id"]["text"] + "\n\n"
+
+    if cfg["redeemRequestSettings"]["shownInfo"]["createdAt"]["enabled"]:
+        text += "**" + cfg["redeemRequestSettings"]["shownInfo"]["createdAt"]["title"] + "**\n" + cfg["redeemRequestSettings"]["shownInfo"]["createdAt"]["text"] + "\n\n"
+
+    if cfg["redeemRequestSettings"]["shownInfo"]["email"]["enabled"]:
+        text += "**" + cfg["redeemRequestSettings"]["shownInfo"]["email"]["title"] + "**\n" + cfg["redeemRequestSettings"]["shownInfo"]["email"]["text"] + "\n\n"
+
+    if cfg["redeemRequestSettings"]["shownInfo"]["paymentMethod"]["enabled"]:
+        text += "**" + cfg["redeemRequestSettings"]["shownInfo"]["paymentMethod"]["title"] + "**\n" + cfg["redeemRequestSettings"]["shownInfo"]["paymentMethod"]["text"] + "\n\n"
+
+    return basicPlaceholderReplace(redeemRequestPlaceholderReplace(text, redeemRequest), version, state)
+
+def generateNewDeviceText(cfg: dict, newDevice: dict, version: str, state: str) -> str:
+    text = ""
+
+    if cfg["newDeviceSettings"]["shownInfo"]["id"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["id"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["id"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["name"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["name"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["name"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["bw"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["bw"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["bw"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["country"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["country"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["country"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["earned"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["earned"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["earned"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["totalEarned"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["totalEarned"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["totalEarned"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["ips"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["ips"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["ips"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["rate"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["rate"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["rate"]["text"] + "\n\n"
+
+    if cfg["newDeviceSettings"]["shownInfo"]["totalBw"]["enabled"]:
+        text += "**" + cfg["newDeviceSettings"]["shownInfo"]["totalBw"]["title"] + "**\n" + cfg["newDeviceSettings"]["shownInfo"]["totalBw"]["text"] + "\n\n"
+
+    return basicPlaceholderReplace(newDevicePlaceholderReplace(text, newDevice, cfg["newDeviceSettings"]["shownInfo"]["ips"]["separator"]), version, state)
+
 def generateBalanceUpdateText(cfg: dict, oldInfo: dict, newInfo: dict, averageList: list, version: str, state: str) -> str:
     text = ""
     activeDevices = []
@@ -136,6 +205,72 @@ def sendBalanceUpdate(cfg: dict, oldInfo: dict, newInfo: dict, webhookURLs: list
 
     if cfg["balanceUpdateSettings"]["embedSettings"]["embed"]:
         data["embeds"] = [textToEmbed(text, cfg, "balanceUpdate", version, state, hasBalanceChanged)]
+    else:
+        data["content"] = text
+
+    for webhookURL in webhookURLs:
+        print(data)
+        r = requests.post(webhookURL, json=data)
+    print(str(r.status_code) + " | " + r.text)
+
+def sendAppUpdate(cfg: dict, oldAppVersions: dict, newAppVersions: dict, webhookURLs: list, version: str, state: str) -> None:
+    data = {
+        "content": "",
+    }
+
+    if cfg["webhookName"] != "":
+        data["username"] = cfg["webhookName"]
+    if cfg["webhookImage"] != "":
+        data["avatar_url"] = cfg["webhookImage"]
+
+    text = generateAppUpdateText(cfg, oldAppVersions, newAppVersions, version, state)
+
+    if cfg["appUpdateSettings"]["embedSettings"]["embed"]:
+        data["embeds"] = [textToEmbed(text, cfg, "appUpdate", version, state, True)]
+    else:
+        data["content"] = text
+
+    for webhookURL in webhookURLs:
+        print(data)
+        r = requests.post(webhookURL, json=data)
+    print(str(r.status_code) + " | " + r.text)
+
+def sendRedeemRequest(cfg: dict, redeemRequest: dict, webhookURLs: list, version: str, state: str) -> None:
+    data = {
+        "content": "",
+    }
+
+    if cfg["webhookName"] != "":
+        data["username"] = cfg["webhookName"]
+    if cfg["webhookImage"] != "":
+        data["avatar_url"] = cfg["webhookImage"]
+
+    text = generateRedeemRequestText(cfg, redeemRequest, version, state)
+
+    if cfg["redeemRequestSettings"]["embedSettings"]["embed"]:
+        data["embeds"] = [textToEmbed(text, cfg, "redeemRequest", version, state, True)]
+    else:
+        data["content"] = text
+
+    for webhookURL in webhookURLs:
+        print(data)
+        r = requests.post(webhookURL, json=data)
+    print(str(r.status_code) + " | " + r.text)
+
+def sendNewDevice(cfg: dict, device: dict, webhookURLs: list, version: str, state: str) -> None:
+    data = {
+        "content": "",
+    }
+
+    if cfg["webhookName"] != "":
+        data["username"] = cfg["webhookName"]
+    if cfg["webhookImage"] != "":
+        data["avatar_url"] = cfg["webhookImage"]
+
+    text = generateNewDeviceText(cfg, device, version, state)
+
+    if cfg["newDeviceSettings"]["embedSettings"]["embed"]:
+        data["embeds"] = [textToEmbed(text, cfg, "newDevice", version, state, True)]
     else:
         data["content"] = text
 

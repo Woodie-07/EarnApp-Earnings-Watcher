@@ -3,7 +3,7 @@ import requests, time
 from datetime import datetime, timedelta
 
 from log import *
-from balanceUpdate import sendBalanceUpdate
+from sendUpdate import *
 from config import *
 
 version = "v0.0.1"
@@ -17,14 +17,23 @@ def getLatestVersion() -> str:
     data = response.json()
     return data["tag_name"]
 
-def retrieveData(user: earnapp.User) -> dict:
+def retrieveAppVersions(user: earnapp.User) -> dict:
+    while True:
+        try:
+            return user.appVersions()
+        except earnapp.IncorrectTokenException:
+            error("Incorrect token: " + token)
+        except earnapp.RatelimitedException:
+            warning("Ratelimited, waiting " + str(cfg["ratelimitWait"]) + " seconds...")
+            time.sleep(cfg["ratelimitWait"])
+
+def retrieveUserData(user: earnapp.User) -> dict:
     retrievedInfo = {}
 
     doneUserData = False
     doneMoney = False
     doneDevices = False
     doneTransactions = False
-    doneAppVersions = False
     while True:
         try:
             if not doneUserData:
@@ -39,9 +48,6 @@ def retrieveData(user: earnapp.User) -> dict:
             if not doneTransactions:
                 retrievedInfo["transactions"] = user.transactions()
                 doneTransactions = True
-            if not doneAppVersions:
-                retrievedInfo["appVersions"] = user.appVersions()
-                doneAppVersions = True
             break
         except earnapp.IncorrectTokenException:
             error("Incorrect token: " + token)
@@ -92,7 +98,9 @@ for token in cfg["tokens"]:
 info("EarnApp user objects created.")
 info("Getting current info...")
 for user in users:
-    user[2] = retrieveData(user[0])
+    user[2] = retrieveUserData(user[0])
+
+oldAppVersions = retrieveAppVersions(users[0][0])
 
 info("Current info retrieved.")
 
@@ -102,7 +110,7 @@ info("Starting earnings watcher...")
 # run on the hour
 while True:
     # wait until the next hour
-    dt = datetime.now() + timedelta(hours=1)
+    dt = datetime.now()# + timedelta(hours=1)
     dt = dt.replace(minute=00, second=00, microsecond=0)
     while datetime.now() < dt:
         time.sleep(1)
@@ -112,10 +120,16 @@ while True:
     time.sleep(cfg["delay"])
     info("It's time to check for new earnings...")
 
+    newAppVersions = retrieveAppVersions(users[0][0])
+    if newAppVersions["win"] != oldAppVersions["win"] or newAppVersions["mac"] != oldAppVersions["mac"]:
+        sendAppUpdate(cfg, oldAppVersions, newAppVersions, cfg["webhookURLs"], version, state)
+
+    oldAppVersions = newAppVersions
+
     for user in users:
         oldInfo = user[2]
         info("Getting new info...")
-        newInfo = retrieveData(user[0])
+        newInfo = retrieveUserData(user[0])
         info("New info retrieved.")
     
         if cfg["balanceUpdateSettings"]["enabled"] == True:
@@ -134,5 +148,45 @@ while True:
                     info("Sending balance update...")
                     sendBalanceUpdate(cfg, oldInfo, newInfo, user[1], user[3], version, state, False)
                     info("Balance update sent.")
+
+        if cfg["redeemRequestSettings"]["enabled"] == True:
+            info("Checking redeem requests...")
+            if len(oldInfo["transactions"]) < len(newInfo["transactions"]):
+                oldTransactionIDs = []
+                newTransactions = []
+                for transaction in oldInfo["transactions"]:
+                    oldTransactionIDs.append(transaction["uuid"])
+
+                for transaction in newInfo["transactions"]:
+                    if transaction["uuid"] not in oldTransactionIDs:
+                        newTransactions.append(transaction)
+
+                info("Redeem requests have changed!")
+                for transaction in newTransactions:
+                    info("Sending redeem request update...")
+                    sendRedeemRequest(cfg, transaction, user[1], version, state)
+                    info("Redeem request update sent.")
+            else:
+                info("Redeem requests have not changed.")
+
+        if cfg["newDeviceSettings"]["enabled"]:
+            info("Checking new devices...")
+            if len(oldInfo["devices"]) < len(newInfo["devices"]):
+                oldDeviceIDs = []
+                newDevices = []
+                for device in oldInfo["devices"]:
+                    oldDeviceIDs.append(device["uuid"])
+
+                for device in newInfo["devices"]:
+                    if device["uuid"] not in oldDeviceIDs:
+                        newDevices.append(device)
+
+                info("New devices have changed!")
+                for device in newDevices:
+                    info("Sending new device update...")
+                    sendNewDevice(cfg, device, user[1], version, state)
+                    info("New device update sent.")
+            else:
+                info("New devices have not changed.")
 
         user[2] = newInfo

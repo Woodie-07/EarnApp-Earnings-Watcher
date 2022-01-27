@@ -5,7 +5,7 @@ webhookURLs: []
 webhookName: "EarnApp Earnings Watcher"
 webhookImage: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png"
 tokens: [] # the oauth-refresh-token of the EarnApp account(s)
-delay: 600 # delay in seconds after the hour that it should update. The EarnApp dashboard doesn't update bang on the hour, so don't set this too low or you'll miss the data. I've noticed it update at 8/9 mins past.
+delay: 0 # delay in seconds after the hour that it should update. The EarnApp dashboard doesn't update bang on the hour, so don't set this too low or you'll miss the data. I've noticed it update at 8/9 mins past.
 ratelimitWait: 60 # if the API ratelimit is hit, how long should we wait before trying again?
 perDevice: false # if you want to send data per device, set this to true.
 
@@ -16,6 +16,7 @@ appUpdateSettings:
     inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
     colour: "77ac97" # the colour of the line at the side of the embed. You can find a list of colours here: https://www.w3schools.com/colors/colors_picker.asp
     title: "EarnApp Earnings Watcher" # the title of the embed
+    titleURL: "https://github.com/Woodie-07/EarnApp-Earnings-Watcher" # the url that the title will link to
     description: "App update" # the description of the embed
     authorName: "Woodie" # the name of the author of the embed
     authorURL: "https://woodie.cf" # the url that the author's name will link to
@@ -41,6 +42,7 @@ redeemRequestSettings:
     inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
     colour: "77ac97" # the colour of the line at the side of the embed. You can find a list of colours here: https://www.w3schools.com/colors/colors_picker.asp
     title: "EarnApp Earnings Watcher" # the title of the embed
+    titleURL: "https://github.com/Woodie-07/EarnApp-Earnings-Watcher" # the url that the title will link to
     description: "Redeem request" # the description of the embed
     authorName: "Woodie" # the name of the author of the embed
     authorURL: "https://woodie.cf" # the url that the author's name will link to
@@ -90,6 +92,7 @@ newDeviceSettings:
     inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
     colour: "77ac97" # the colour of the line at the side of the embed. You can find a list of colours here: https://www.w3schools.com/colors/colors_picker.asp
     title: "EarnApp Earnings Watcher" # the title of the embed
+    titleURL: "https://github.com/Woodie-07/EarnApp-Earnings-Watcher" # the url that the title will link to
     description: "New device" # the description of the embed
     authorName: "Woodie" # the name of the author of the embed
     authorURL: "https://woodie.cf" # the url that the author's name will link to

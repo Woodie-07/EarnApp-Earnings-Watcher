@@ -3,14 +3,27 @@ def basicPlaceholderReplace(text: str, version: str, state: str) -> str:
                 .replace("{{state}}", state)
             )
 
+def appUpdatePlaceholderReplace(text: str, oldAppVersions: dict, newAppVersions: dict) -> str:
+    return (text.replace("{{win_old_version}}", oldAppVersions["win"])
+                .replace("{{win_new_version}}", newAppVersions["win"])
+                .replace("{{mac_old_version}}", oldAppVersions["mac"])
+                .replace("{{mac_new_version}}", newAppVersions["mac"])
+    )
+
 def balanceUpdatePlaceholderReplace(text: str, oldData: dict, newData: dict, averageList: list) -> str:
     oldTotalBw = 0
     for device in oldData["devices"]:
-        oldTotalBw += device["total_bw"]
+        try:
+            oldTotalBw += device["total_bw"]
+        except KeyError:
+            pass
 
     newTotalBw = 0
     for device in newData["devices"]:
-        newTotalBw += device["total_bw"]
+        try:
+            newTotalBw += device["total_bw"]
+        except KeyError:
+            pass
 
 
     return (text.replace("{{account_email}}", newData["userData"]["email"])
@@ -29,10 +42,21 @@ def balanceUpdatePlaceholderReplace(text: str, oldData: dict, newData: dict, ave
 
 def newDevicePlaceholderReplace(text: str, device: dict, IPsSeparator: str) -> str:
     ips = ""
-    for ip in device["ips"]:
-        ips += ip + IPsSeparator
-    if len(ips) > 0:
+    try:
+        for ip in device["ips"]:
+            ips += ip + IPsSeparator
+    except KeyError:
+        pass
+
+    if ips == "":
+        ips = "-"
+    elif len(ips) > 0:
         ips = ips[:len(IPsSeparator) * -1]
+    try:
+        device["total_bw"]
+    except KeyError:
+        device["total_bw"] = 0
+
     return (text.replace("{{id}}", device["uuid"])
                 .replace("{{name}}", device["title"])
                 .replace("{{bw_gb}}", str(device["total_bw"] / 1024 / 1024 / 1024))
