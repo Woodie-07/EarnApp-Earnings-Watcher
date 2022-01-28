@@ -26,6 +26,8 @@ def retrieveAppVersions(user: earnapp.User) -> dict:
         except earnapp.RatelimitedException:
             warning("Ratelimited, waiting " + str(cfg["ratelimitWait"]) + " seconds...")
             time.sleep(cfg["ratelimitWait"])
+        except:
+            warning("Something happened, retrying...")
 
 def retrieveUserData(user: earnapp.User) -> dict:
     retrievedInfo = {}
@@ -54,6 +56,8 @@ def retrieveUserData(user: earnapp.User) -> dict:
         except earnapp.RatelimitedException:
             warning("Ratelimited, waiting " + str(cfg["ratelimitWait"]) + " seconds...")
             time.sleep(cfg["ratelimitWait"])
+        except:
+            warning("Something happened, retrying...")
 
     return retrievedInfo
 

@@ -75,9 +75,9 @@ def newDevicePlaceholderReplace(text: str, device: dict, IPsSeparator: str) -> s
     )
 
 def redeemRequestPlaceholderReplace(text: str, data: dict) -> str:
-    return (text.replace("{{amount}}", data["money_amount"])
-                .replace("{{referrals_bonus}}", data["ref_bonuses_amount"])
-                .replace("{{promotions_bonus}}", data["promo_bonuses_amount"])
+    return (text.replace("{{amount}}", str(data["money_amount"]))
+                .replace("{{referrals_bonus}}", str(data["ref_bonuses_amount"]))
+                .replace("{{promotions_bonus}}", str(data["promo_bonuses_amount"]))
                 .replace("{{status}}", data["status"])
                 .replace("{{id}}", data["uuid"])
                 .replace("{{created_at}}", data["date"])

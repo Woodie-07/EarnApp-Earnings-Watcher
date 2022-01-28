@@ -1,4 +1,5 @@
 from placeholders import *
+from log import *
 import requests
 
 def textToEmbed(text: str, cfg: dict, type: str, version: str, state: str, hasBalanceChanged: bool) -> dict:
@@ -209,9 +210,13 @@ def sendBalanceUpdate(cfg: dict, oldInfo: dict, newInfo: dict, webhookURLs: list
         data["content"] = text
 
     for webhookURL in webhookURLs:
-        print(data)
-        r = requests.post(webhookURL, json=data)
-    print(str(r.status_code) + " | " + r.text)
+        while True:
+            try:
+                r = requests.post(webhookURL, json=data)
+                info("Sent balance update message with response code " + str(r.status_code))
+                break
+            except:
+                warning("Something happened, retrying...")
 
 def sendAppUpdate(cfg: dict, oldAppVersions: dict, newAppVersions: dict, webhookURLs: list, version: str, state: str) -> None:
     data = {
@@ -231,9 +236,13 @@ def sendAppUpdate(cfg: dict, oldAppVersions: dict, newAppVersions: dict, webhook
         data["content"] = text
 
     for webhookURL in webhookURLs:
-        print(data)
-        r = requests.post(webhookURL, json=data)
-    print(str(r.status_code) + " | " + r.text)
+        while True:
+            try:
+                r = requests.post(webhookURL, json=data)
+                info("Sent app update message with response code " + str(r.status_code))
+                break
+            except:
+                warning("Something happened, retrying...")
 
 def sendRedeemRequest(cfg: dict, redeemRequest: dict, webhookURLs: list, version: str, state: str) -> None:
     data = {
@@ -253,9 +262,13 @@ def sendRedeemRequest(cfg: dict, redeemRequest: dict, webhookURLs: list, version
         data["content"] = text
 
     for webhookURL in webhookURLs:
-        print(data)
-        r = requests.post(webhookURL, json=data)
-    print(str(r.status_code) + " | " + r.text)
+        while True:
+            try:
+                r = requests.post(webhookURL, json=data)
+                info("Sent redeem request message with response code " + str(r.status_code))
+                break
+            except:
+                warning("Something happened, retrying...")
 
 def sendNewDevice(cfg: dict, device: dict, webhookURLs: list, version: str, state: str) -> None:
     data = {
@@ -275,6 +288,10 @@ def sendNewDevice(cfg: dict, device: dict, webhookURLs: list, version: str, stat
         data["content"] = text
 
     for webhookURL in webhookURLs:
-        print(data)
-        r = requests.post(webhookURL, json=data)
-    print(str(r.status_code) + " | " + r.text)
+        while True:
+            try:
+                r = requests.post(webhookURL, json=data)
+                info("Sent new device message with response code " + str(r.status_code))
+                break
+            except:
+                warning("Something happened, retrying...")
