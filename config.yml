@@ -1,13 +1,17 @@
-# If you put one here, all data will be sent to the same webhook. 
+# If you put one webhook URL here, all data will be sent to the same webhook. 
 # If you put the same amount as tokens, the data from each token will be sent to the corresponding webhook. 
 # If you put multiple but not the same amount as there are tokens, the same data will be sent to all webhooks.
+# For example, if you want to put 3 webhooks, you can put the following:
+# webhookURLs: ["webhookURL1", "webhookURL2", "webhookURL3"]
 webhookURLs: []
 webhookName: "EarnApp Earnings Watcher"
 webhookImage: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png"
+# If you want to put 3 tokens, you can put the following:
+# tokens: ["token1", "token2", "token3"]
 tokens: [] # the oauth-refresh-token of the EarnApp account(s)
 delay: 600 # delay in seconds after the hour that it should update. The EarnApp dashboard doesn't update bang on the hour, so don't set this too low or you'll miss the data. I've noticed it update at 8/9 mins past.
 ratelimitWait: 60 # if the API ratelimit is hit, how long should we wait before trying again?
-perDevice: false # if you want to send data per device, set this to true.
+perDevice: false # if you want to send data per device, set this to true. NOT IMPLEMENTED YET
 
 appUpdateSettings:
   enabled: true # if you want to send messages when there is a new EarnApp version, set this to true.

@@ -140,7 +140,7 @@ while True:
             info("Checking balance updates...")
             if oldInfo["money"]["balance"] != newInfo["money"]["balance"]:
                 info("Balance has changed!")
-                user[3][0] += newInfo["money"]["balance"] - oldInfo["money"]["balance"]
+                user[3][0] += newInfo["money"]["earnings_total"] - oldInfo["money"]["earnings_total"]
                 user[3][1] += 1
                 info("Sending balance update...")
                 sendBalanceUpdate(cfg, oldInfo, newInfo, user[1], user[3], version, state, True)
