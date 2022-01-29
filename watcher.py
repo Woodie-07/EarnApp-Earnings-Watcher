@@ -19,13 +19,13 @@ from log import *
 from sendUpdate import *
 from config import *
 
-version = "v0.0.1"
+version = "v0.0.2"
 state = "ALPHA"
 
 
 # use GitHub API to get latest version
 def getLatestVersion() -> str:
-    url = "https://api.github.com/repos/Woodie-07/EarnApp-Earnings-Watcher/release"
+    url = "https://api.github.com/repos/Woodie-07/EarnApp-Earnings-Watcher/releases"
     response = requests.get(url)
     data = response.json()
     return data["tag_name"]
