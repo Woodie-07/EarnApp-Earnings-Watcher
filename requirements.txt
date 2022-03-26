@@ -1,2 +1,3 @@
 pyyaml
 earnapp >= 0.0.5
+colorama
