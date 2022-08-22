@@ -11,10 +11,22 @@ webhookImage: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f10
 tokens: [] # the oauth-refresh-token of the EarnApp account(s)
 delay: 600 # delay in seconds after the hour that it should update. The EarnApp dashboard doesn't update bang on the hour, so don't set this too low or you'll miss the data. I've noticed it update at 8/9 mins past.
 ratelimitWait: 60 # if the API ratelimit is hit, how long should we wait before trying again?
-perDevice: false # if you want to send data per device, set this to true. NOT IMPLEMENTED YET
+
+proxies: []  # if you want to use proxies, enter them here in format: "protocol://user:pass@host:port". You do not need to specify user and pass if you are not using authentication.
+
+mysql:
+  enabled: false # if you want to log EarnApp data to a MySQL database, set this to true
+  host: "localhost"
+  user: "earnapp"
+  password: "EarnApp_Test"
+  database: "earnapp"
+
+userDataSettings:
+  sqlEnabled: true # if you want to log user data to the MySQL database, set this to true
 
 appUpdateSettings:
   enabled: true # if you want to send messages when there is a new EarnApp version, set this to true.
+  sqlEnabled: true # if you want to log new EarnApp versions to the SQL database, set this to true.
   embedSettings:
     embed: true # if you want embeds to be sent, set this to true. If false, the program will send the update data as normal text
     inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
@@ -24,7 +36,7 @@ appUpdateSettings:
     description: "App update" # the description of the embed
     authorName: "Woodie" # the name of the author of the embed
     authorURL: "https://woodie.cf" # the url that the author's name will link to
-    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/eed752ca4ba02d9d97e87fda6752faab.png?size=1024" # the url of the author's icon
+    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/fa4d2e617e5442fe8101330630dc12ff.jpg?size=1280" # the url of the author's icon
     image: "" # the url of the image that will be displayed in the embed
     thumbnail: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png" # the url of the thumbnail that will be displayed in the embed
     footer: "EarnApp Earnings Watcher {{version}} {{state}} by Woodie" # the footer of the embed
@@ -41,6 +53,7 @@ appUpdateSettings:
 
 redeemRequestSettings:
   enabled: true # if you want to send messages when there is a new redeem request, set this to true.
+  sqlEnabled: true # if you want to log new redeem requests to the SQL database, set this to true.
   embedSettings:
     embed: true # if you want embeds to be sent, set this to true. If false, the program will send the redeem request data as normal text
     inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
@@ -50,7 +63,7 @@ redeemRequestSettings:
     description: "Redeem request" # the description of the embed
     authorName: "Woodie" # the name of the author of the embed
     authorURL: "https://woodie.cf" # the url that the author's name will link to
-    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/eed752ca4ba02d9d97e87fda6752faab.png?size=1024" # the url of the author's icon
+    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/fa4d2e617e5442fe8101330630dc12ff.png?size=1280" # the url of the author's icon
     image: "" # the url of the image that will be displayed in the embed
     thumbnail: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png" # the url of the thumbnail that will be displayed in the embed
     footer: "EarnApp Earnings Watcher {{version}} {{state}} by Woodie" # the footer of the embed
@@ -91,6 +104,7 @@ redeemRequestSettings:
 
 newDeviceSettings:
   enabled: true # if you want to send messages when there is a new device, set this to true.
+  sqlEnabled: true # if you want to log device info to the SQL database, set this to true.
   embedSettings:
     embed: true # if you want embeds to be sent, set this to true. If false, the program will send the new device data as normal text
     inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
@@ -100,7 +114,7 @@ newDeviceSettings:
     description: "New device" # the description of the embed
     authorName: "Woodie" # the name of the author of the embed
     authorURL: "https://woodie.cf" # the url that the author's name will link to
-    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/eed752ca4ba02d9d97e87fda6752faab.png?size=1024" # the url of the author's icon
+    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/fa4d2e617e5442fe8101330630dc12ff.png?size=1280" # the url of the author's icon
     image: "" # the url of the image that will be displayed in the embed
     thumbnail: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png" # the url of the thumbnail that will be displayed in the embed
     footer: "EarnApp Earnings Watcher {{version}} {{state}} by Woodie" # the footer of the embed
@@ -147,6 +161,26 @@ newDeviceSettings:
 balanceUpdateSettings:
   enabled: true # if you want to send balance updates, set this to true.
   sendIfNotChanged: true # if you want to send balance updates even if the balance hasn't changed, set this to true.
+  perDevice: false # if you want to send data per device, set this to true. 
+  sqlEnabled: true # if you want to log balance updates to the SQL database, set this to true.
+  sqlPerDevice: true # if you want to log earnings of each device to the SQL database, set this to true.
+  perDeviceEmbedSettings:
+    embed: true # if you want embeds to be sent, set this to true. If false, the program will send the per device update data as normal text
+    inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
+    colour: "77ac97" # the colour of the line at the side of the embed. You can find a list of colours here: https://www.w3schools.com/colors/colors_picker.asp
+    colourIfNotChanged: "ff0000" # the colour of the line at the side of the embed if the balance hasn't changed. You can find a list of colours here: https://www.w3schools.com/colors/colors_picker.asp
+    title: "EarnApp Earnings Watcher" # the title of the embed
+    titleURL: "https://github.com/Woodie-07/EarnApp-Earnings-Watcher" # the url that the title will link to
+    description: "Device balance update" # the description of the embed
+    descriptionIfNotChanged: "Device balance not changed" # the description of the embed if the balance hasn't changed
+    authorName: "Woodie" # the name of the author of the embed
+    authorURL: "https://woodie.cf" # the url that the author's name will link to
+    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/fa4d2e617e5442fe8101330630dc12ff.png?size=1280" # the url of the author's icon
+    image: "" # the url of the image that will be displayed in the embed
+    thumbnail: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png" # the url of the thumbnail that will be displayed in the embed
+    footer: "EarnApp Earnings Watcher {{version}} {{state}} by Woodie" # the footer of the embed
+    footerIcon: "https://pngimg.com/uploads/github/github_PNG40.png"
+
   embedSettings:
     embed: true # if you want embeds to be sent, set this to true. If false, the program will send the earnings data as normal text
     inline: true # if you want the embeds to be inline, set this to true. If false, the program will send the embed's fields in a line instead of next to each other.
@@ -158,11 +192,55 @@ balanceUpdateSettings:
     descriptionIfNotChanged: "Balance has not changed" # the description of the embed that will be shown if the balance has not changed
     authorName: "Woodie" # the name of the author of the embed
     authorURL: "https://woodie.cf" # the url that the author's name will link to
-    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/eed752ca4ba02d9d97e87fda6752faab.png?size=1024" # the url of the author's icon
+    authorIcon: "https://cdn.discordapp.com/avatars/851073836152651777/fa4d2e617e5442fe8101330630dc12ff.png?size=1280" # the url of the author's icon
     image: "" # the url of the image that will be displayed in the embed
     thumbnail: "https://s3-eu-west-1.amazonaws.com/tpd/logos/6135e9dd9f3c85001f1088e8/0x0.png" # the url of the thumbnail that will be displayed in the embed
     footer: "EarnApp Earnings Watcher {{version}} {{state}} by Woodie" # the footer of the embed
     footerIcon: "https://pngimg.com/uploads/github/github_PNG40.png"
+
+  perDeviceShownInfo:
+    deviceID:
+      enabled: true
+      title: "Device ID"
+      text: "{{id}}"
+    deviceType:
+      enabled: true
+      title: "Device Type"
+      text: "{{type}}"
+    bandwidth:
+      enabled: true
+      title: "Bandwidth"
+      text: "+{{bw_diff_gb}} GB"
+    country:
+      enabled: true
+      title: "Country"
+      text: "{{country}}"
+    earned:
+      enabled: true
+      title: "Earned"
+      text: "+${{earned_diff}}"
+    totalEarned:
+      enabled: true
+      title: "Total Earned"
+      text: "${{total_earned}}"
+    ips:
+      enabled: true
+      title: "IPs"
+      text: "{{ips}}"
+      separator: ", "
+    rate:
+      enabled: true
+      title: "Rate"
+      text: "${{rate}}/GB"
+    name:
+      enabled: true
+      title: "Name"
+      text: "{{name}}"
+    totalBw:
+      enabled: true
+      title: "Total Bandwidth"
+      text: "{{total_bw_gb}} GB"
+
   shownInfo:
     accountEmail:
       enabled: true # if you want to show the email of the account, set this to true

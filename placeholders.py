@@ -50,10 +50,10 @@ def balanceUpdatePlaceholderReplace(text: str, oldData: dict, newData: dict, ave
                 .replace("{{hour_traffic_kb}}", str(round((newTotalBw - oldTotalBw) / 1024, 2)))
                 .replace("{{hour_traffic}}", str(round(newTotalBw - oldTotalBw, 2)))
                 .replace("{{balance}}", str(round(newData["money"]["balance"], 2)))
-                .replace("{{lifetime_balance}}", str(newData["money"]["earnings_total"]))
+                .replace("{{lifetime_balance}}", "{:.2f}".format(newData["money"]["earnings_total"]))
     )
 
-def newDevicePlaceholderReplace(text: str, device: dict, IPsSeparator: str) -> str:
+def newDevicePlaceholderReplace(text: str, device: dict, IPsSeparator: str, oldDevice = None) -> str:
     ips = ""
     try:
         for ip in device["ips"]:
@@ -70,14 +70,35 @@ def newDevicePlaceholderReplace(text: str, device: dict, IPsSeparator: str) -> s
     except KeyError:
         device["total_bw"] = 0
 
+    if device["appid"] == "win_earnapp.com":
+        type_ = "Windows"
+    elif device["appid"] == "node_earnapp.com":
+        type_ = "Linux"
+    elif device["appid"] == "mac_com.earnapp":
+        type_ = "Mac"
+    elif device["appid"] == "com.eapp":
+        type_ = "Android"
+    elif device["appid"] == "roku_earnapp.com":
+        type_ = "Roku"
+    elif device["appid"] == "ios_com.earnapp":
+        type_ = "iOS"
+    else:
+        type_ = device["appid"]
+
     return (text.replace("{{id}}", device["uuid"])
+                .replace("{{type}}", type_)
                 .replace("{{name}}", device["title"])
-                .replace("{{bw_gb}}", str(round(device["total_bw"] / 1024 / 1024 / 1024, 2)))
-                .replace("{{bw_mb}}", str(round(device["total_bw"] / 1024 / 1024, 2)))
-                .replace("{{bw_kb}}", str(round(device["total_bw"] / 1024, 2)))
+                .replace("{{bw_gb}}", str(round(device["bw"] / 1024 / 1024 / 1024, 2)))
+                .replace("{{bw_mb}}", str(round(device["bw"] / 1024 / 1024, 2)))
+                .replace("{{bw_kb}}", str(round(device["bw"] / 1024, 2)))
                 .replace("{{bw}}", str(device["total_bw"]))
+                .replace("{{bw_diff_gb}}", str(round((device["total_bw"] - (0 if not oldDevice else oldDevice["total_bw"])) / 1024 / 1024 / 1024, 2)))
+                .replace("{{bw_diff_mb}}", str(round((device["total_bw"] - (0 if not oldDevice else oldDevice["total_bw"])) / 1024 / 1024, 2)))
+                .replace("{{bw_diff_kb}}", str(round((device["total_bw"] - (0 if not oldDevice else oldDevice["total_bw"])) / 1024, 2)))
+                .replace("{{bw_diff}}", str(round(device["total_bw"] - (0 if not oldDevice else oldDevice["total_bw"]), 2)))
                 .replace("{{country}}", device["country"].lower() if device["country"] else "Unknown")
                 .replace("{{earned}}", "{:.2f}".format(device["earned"]))
+                .replace("{{earned_diff}}", "{:.2f}".format(device["earned"] - (0 if not oldDevice else oldDevice["earned"])))
                 .replace("{{total_earned}}", str(device["earned_total"]))
                 .replace("{{ips}}", ips)
                 .replace("{{rate}}", str(device["rate"]))

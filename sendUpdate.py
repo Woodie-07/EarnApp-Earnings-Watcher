@@ -14,42 +14,45 @@ You should have received a copy of the GNU General Public License along with Ear
 from placeholders import *
 from log import *
 import requests
+import time
 
 def textToEmbed(text: str, cfg: dict, type: str, version: str, state: str, hasBalanceChanged: bool) -> dict:
     embed = {}
 
-    if cfg[type + "Settings"]["embedSettings"]["colour"] != "":
-        embed["color"] = int(cfg[type + "Settings"]["embedSettings"]["colour"], 16) if hasBalanceChanged else int(cfg[type + "Settings"]["embedSettings"]["colourIfNotChanged"], 16)
+    embedSettings = cfg[type + "Settings"]["embedSettings"] if type != "deviceBalanceUpdate" else cfg["balanceUpdateSettings"]["perDeviceEmbedSettings"]
+
+    if embedSettings["colour"] != "":
+        embed["color"] = int(embedSettings["colour"], 16) if hasBalanceChanged else int(embedSettings["colourIfNotChanged"], 16)
 
     embed["author"], embed["thumbnail"], embed["footer"] = {}, {}, {}
 
 
-    if cfg[type + "Settings"]["embedSettings"]["authorName"] != "":
-        embed["author"]["name"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["authorName"], version, state)
+    if embedSettings["authorName"] != "":
+        embed["author"]["name"] = basicPlaceholderReplace(embedSettings["authorName"], version, state)
 
-    if cfg[type + "Settings"]["embedSettings"]["authorIcon"] != "":
-        embed["author"]["icon_url"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["authorIcon"], version, state)
+    if embedSettings["authorIcon"] != "":
+        embed["author"]["icon_url"] = basicPlaceholderReplace(embedSettings["authorIcon"], version, state)
     
-    if cfg[type + "Settings"]["embedSettings"]["authorURL"] != "":
-        embed["author"]["url"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["authorURL"], version, state)
+    if embedSettings["authorURL"] != "":
+        embed["author"]["url"] = basicPlaceholderReplace(embedSettings["authorURL"], version, state)
 
-    if cfg[type + "Settings"]["embedSettings"]["title"] != "":
-        embed["title"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["title"], version, state)
+    if embedSettings["title"] != "":
+        embed["title"] = basicPlaceholderReplace(embedSettings["title"], version, state)
     
-    if cfg[type + "Settings"]["embedSettings"]["titleURL"] != "":
-        embed["url"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["titleURL"], version, state)
+    if embedSettings["titleURL"] != "":
+        embed["url"] = basicPlaceholderReplace(embedSettings["titleURL"], version, state)
         
-    if cfg[type + "Settings"]["embedSettings"]["thumbnail"] != "":
-        embed["thumbnail"]["url"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["thumbnail"], version, state)
+    if embedSettings["thumbnail"] != "":
+        embed["thumbnail"]["url"] = basicPlaceholderReplace(embedSettings["thumbnail"], version, state)
 
-    if cfg[type + "Settings"]["embedSettings"]["description"] != "":
-        embed["description"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["description"], version, state) if hasBalanceChanged else basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["descriptionIfNotChanged"], version, state)
+    if embedSettings["description"] != "":
+        embed["description"] = basicPlaceholderReplace(embedSettings["description"], version, state) if hasBalanceChanged else basicPlaceholderReplace(embedSettings["descriptionIfNotChanged"], version, state)
         
-    if cfg[type + "Settings"]["embedSettings"]["footer"] != "":
-        embed["footer"]["text"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["footer"], version, state)
+    if embedSettings["footer"] != "":
+        embed["footer"]["text"] = basicPlaceholderReplace(embedSettings["footer"], version, state)
 
-    if cfg[type + "Settings"]["embedSettings"]["footerIcon"] != "":
-        embed["footer"]["icon_url"] = basicPlaceholderReplace(cfg[type + "Settings"]["embedSettings"]["footerIcon"], version, state)
+    if embedSettings["footerIcon"] != "":
+        embed["footer"]["icon_url"] = basicPlaceholderReplace(embedSettings["footerIcon"], version, state)
 
     embed["fields"] = []
 
@@ -62,11 +65,9 @@ def textToEmbed(text: str, cfg: dict, type: str, version: str, state: str, hasBa
         if line == "":
             continue
         if line[0:2] == "**":
-            print("Found title line: " + line)
             name = line[2:-2]
-            print("Found value line: " + lines[i+1])
             value = lines[i+1]
-            embed["fields"].append({"name": name, "value": value, "inline": cfg[type + "Settings"]["embedSettings"]["inline"]})
+            embed["fields"].append({"name": name, "value": value, "inline": embedSettings["inline"]})
 
     
     return embed
@@ -140,6 +141,41 @@ def generateNewDeviceText(cfg: dict, newDevice: dict, version: str, state: str) 
 
     return basicPlaceholderReplace(newDevicePlaceholderReplace(text, newDevice, cfg["newDeviceSettings"]["shownInfo"]["ips"]["separator"]), version, state)
 
+def generateDeviceBalanceUpdateText(cfg: dict, oldDevice: dict, newDevice: dict, version: str, state: str) -> str:
+    text = ""
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["deviceID"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["deviceID"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["deviceID"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["name"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["name"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["name"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["deviceType"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["deviceType"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["deviceType"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["bandwidth"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["bandwidth"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["bandwidth"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["country"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["country"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["country"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["earned"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["earned"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["earned"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["totalEarned"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["totalEarned"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["totalEarned"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["ips"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["ips"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["ips"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["rate"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["rate"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["rate"]["text"] + "\n\n"
+
+    if cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["totalBw"]["enabled"]:
+        text += "**" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["totalBw"]["title"] + "**\n" + cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["totalBw"]["text"] + "\n\n"
+
+    return basicPlaceholderReplace(newDevicePlaceholderReplace(text, newDevice, cfg["balanceUpdateSettings"]["perDeviceShownInfo"]["ips"]["separator"], oldDevice), version, state)
+
 def generateBalanceUpdateText(cfg: dict, oldInfo: dict, newInfo: dict, averageList: list, version: str, state: str) -> str:
     text = ""
     activeDevices = []
@@ -205,6 +241,37 @@ def generateBalanceUpdateText(cfg: dict, oldInfo: dict, newInfo: dict, averageLi
         
     return basicPlaceholderReplace(balanceUpdatePlaceholderReplace(text, oldInfo, newInfo, averageList), version, state)
 
+def sendDeviceBalanceUpdate(cfg: dict, oldDevice: dict, newDevice: dict, webhookURLs: list, version: str, state: str, hasEarningsChanged: bool):
+    data = {
+        "content": "",
+    }
+
+    if cfg["webhookName"] != "":
+        data["username"] = cfg["webhookName"]
+    if cfg["webhookImage"] != "":
+        data["avatar_url"] = cfg["webhookImage"]
+
+    text = generateDeviceBalanceUpdateText(cfg, oldDevice, newDevice, version, state)
+
+    if cfg["balanceUpdateSettings"]["perDeviceEmbedSettings"]["embed"]:
+        data["embeds"] = [textToEmbed(text, cfg, "deviceBalanceUpdate", version, state, hasEarningsChanged)]
+    else:
+        data["content"] = text
+
+    for webhookURL in webhookURLs:
+        while True:
+            try:
+                r = requests.post(webhookURL, json=data)
+                if r.status_code == 429:
+                    warning("Discord rate limit reached, waiting 5 seconds...")
+                    time.sleep(5)
+                    continue
+                info("Sent balance update message with response code " + str(r.status_code))
+                break
+            except:
+                warning("Something happened, retrying...")
+
+
 def sendBalanceUpdate(cfg: dict, oldInfo: dict, newInfo: dict, webhookURLs: list, averageList: list, version: str, state: str, hasBalanceChanged: bool):
     data = {
         "content": "",
@@ -226,6 +293,10 @@ def sendBalanceUpdate(cfg: dict, oldInfo: dict, newInfo: dict, webhookURLs: list
         while True:
             try:
                 r = requests.post(webhookURL, json=data)
+                if r.status_code == 429:
+                    warning("Discord rate limit reached, waiting 5 seconds...")
+                    time.sleep(5)
+                    continue
                 info("Sent balance update message with response code " + str(r.status_code))
                 break
             except:
@@ -252,6 +323,10 @@ def sendAppUpdate(cfg: dict, oldAppVersions: dict, newAppVersions: dict, webhook
         while True:
             try:
                 r = requests.post(webhookURL, json=data)
+                if r.status_code == 429:
+                    warning("Discord rate limit reached, waiting 5 seconds...")
+                    time.sleep(5)
+                    continue
                 info("Sent app update message with response code " + str(r.status_code))
                 break
             except:
@@ -278,6 +353,10 @@ def sendRedeemRequest(cfg: dict, redeemRequest: dict, webhookURLs: list, version
         while True:
             try:
                 r = requests.post(webhookURL, json=data)
+                if r.status_code == 429:
+                    warning("Discord rate limit reached, waiting 5 seconds...")
+                    time.sleep(5)
+                    continue
                 info("Sent redeem request message with response code " + str(r.status_code))
                 break
             except:
@@ -304,6 +383,10 @@ def sendNewDevice(cfg: dict, device: dict, webhookURLs: list, version: str, stat
         while True:
             try:
                 r = requests.post(webhookURL, json=data)
+                if r.status_code == 429:
+                    warning("Discord rate limit reached, waiting 5 seconds...")
+                    time.sleep(5)
+                    continue
                 info("Sent new device message with response code " + str(r.status_code))
                 break
             except:

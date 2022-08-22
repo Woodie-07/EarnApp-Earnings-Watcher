@@ -1,3 +1,5 @@
 pyyaml
 earnapp >= 0.1.2
 colorama
+mysql-connector-python
+pysocks
