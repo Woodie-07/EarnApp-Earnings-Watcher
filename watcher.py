@@ -21,7 +21,7 @@ from mysqlUtils import addUserData
 from sendUpdate import *
 from config import *
 
-version = "v0.0.5"
+version = "v0.0.6"
 state = "ALPHA"
 
 
