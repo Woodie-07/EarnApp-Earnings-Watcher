@@ -39,6 +39,7 @@ def retrieveAppVersions(user: earnapp.User) -> dict:
             simpleAppVersions = {}  # create a simple dict with just the app platform and version
             for platform in appVersions:
                 simpleAppVersions[platform] = appVersions[platform]["version"]
+            return simpleAppVersions
         except earnapp.IncorrectTokenException:
             error("Incorrect token: " + token)
         except earnapp.RatelimitedException:
