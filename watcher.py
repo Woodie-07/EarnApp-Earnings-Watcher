@@ -21,7 +21,7 @@ from mysqlUtils import addUserData
 from sendUpdate import *
 from config import *
 
-version = "v0.0.4"
+version = "v0.0.5"
 state = "ALPHA"
 
 
@@ -35,7 +35,10 @@ def getLatestVersion() -> str:
 def retrieveAppVersions(user: earnapp.User) -> dict:
     while True:
         try:
-            return user.appVersions()
+            appVersions = user.appVersions() 
+            simpleAppVersions = {}  # create a simple dict with just the app platform and version
+            for platform in appVersions:
+                simpleAppVersions[platform] = appVersions[platform]["version"]
         except earnapp.IncorrectTokenException:
             error("Incorrect token: " + token)
         except earnapp.RatelimitedException:
