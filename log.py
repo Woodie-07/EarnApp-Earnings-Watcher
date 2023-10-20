@@ -1,6 +1,6 @@
 """
 EarnApp-Earnings-Watcher - A program to monitor your EarnApp Earnings and send data to a discord webhook
-Copyright (C) 2022  SWM Tech Industries
+Copyright (C) 2023  Woodie
 
 This file is part of EarnApp-Earnings-Watcher.
 
